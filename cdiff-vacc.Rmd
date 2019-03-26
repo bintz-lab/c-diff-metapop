@@ -1,0 +1,160 @@
+---
+title: "*C. difficile* transmission with vaccination"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(deSolve)
+```
+
+Stephenson et al. (2017) developed and analyzed an ODE model for *C. difficile* transmission with vaccination:
+
+$$
+  \begin{aligned}
+    R' &= a_R\delta N - \alpha R + \theta S- k_RR\\
+    S' &= a_S\delta N + \alpha R - \theta S - \lambda S + p\varepsilon D - vS - k_SS\\
+    {C^-}' &= a_{C^-}\delta N - \phi C^- + (1-f)\lambda S - vC^- - k_{C^-}C^-\\
+    {C^+}' &= a_{C^+}\delta N + f\lambda S - vC^+ - k_{C^+}C^+\\
+    D' &= a_D\delta N + \phi C^- - p\varepsilon D - k_DD\\
+    V' &= a_V\delta N + vS - \lambda V - k_VV\\
+    {C_v^+}' &= a_{C_v^+}\delta N + \lambda V + vC^- + vC^+ - k_{C_v^+}C_v^+
+  \end{aligned}
+$$
+
+where
+
+$$\lambda=\beta_C(C^- + C^+ + C_v^+) + \beta_DD$$
+
+and $a_*$ are admission class proportions and $k_*$ are discharge rates chosen to maintain a constant total population size.
+
+For example, setting $v=0$ and choosing the baseline values (see Fig. 3 in Stephenson et al.), we have the following:
+
+```{r, cache = FALSE}
+cdiff_vacc <- function(t, state, parameters) {
+  with(as.list(c(state, parameters)),
+        {
+          deltaN <- kR*R + kS*S + kCn*Cn + kCp*Cp + kD*D + kV*V + kCv*Cv
+          lambda <- betaC*(Cn+Cp+Cv) + betaD*D
+          dR <- aR*deltaN + theta*S - (alpha+kR)*R
+          dS <- aS*deltaN + alpha*R + p*eps*D - (theta+lambda+v+kS)*S
+          dCn <- aCn*deltaN + (1-f)*lambda*S - (phi+v+kCn)*Cn
+          dCp <- aCp*deltaN + f*lambda*S - (v+kCp)*Cp
+          dD <- aD*deltaN + phi*Cn - (p*eps+kD)*D
+          dV <- aV*deltaN + v*S - (lambda+kV)*V
+          dCv <- aCv*deltaN + lambda*V + v*(Cn+Cp) - kCv*Cv
+          list(c(dR, dS, dCn, dCp, dD, dV, dCv))
+        })
+}
+
+parameters <- c(
+  aR = 0.75, aS = 0.09, aCn = 0.06, aCp = 0.09, aD = 0.01, aV = 0.0, aCv = 0.0,
+  kR = 0.33, kS = 0.15, kCn = 0.15, kCp = 0.15, kD = 0.068, kV = 0.15, kCv = 0.15,
+  alpha = 0.5, theta = 0.033, phi = 0.06, p = 0.8, eps = 0.10,
+  betaC = 0.000001, betaD = 0.000001, f = 0.6, v = 0
+)
+state <- c(R = 112, S = 14, Cn = 9, Cp = 13, D = 2, V = 0, Cv = 0)
+t <- seq(0, 30, length = 1000)
+
+cdiff_vacc_df <- ode(y = state, time = t, func = cdiff_vacc, parms = parameters) %>%
+  unclass() %>% 
+  as_tibble() %>%
+  mutate(
+    sumC = Cn + Cp + Cv,
+    sumV = V + Cv,
+    deltaN = parameters["kR"]*R + parameters["kS"]*S + parameters["kCn"]*Cn + parameters["kCp"]*Cp + parameters["kD"]*D + parameters["kV"]*V + parameters["kCv"]*Cv
+    ) %>%
+  rename(days = time) %>% 
+  gather(state, num, -days) %>% 
+  mutate(state = factor(state, levels = c("R", "S", "Cn", "Cp", "sumC", "D", "V", "Cv", "sumV", "deltaN")))
+
+cdiff_vacc_df %>% 
+  filter(!state %in% c("Cp","V","Cv","deltaN")) %>% 
+  ggplot(aes(days, num)) + 
+    geom_line() +
+    facet_wrap(~state, nrow = 3, scales = "free_y")
+```
+
+Compare two different parameter groups:
+
+```{r, cache = FALSE}
+parameters_A <- c(
+  aR = 0.75, aS = 0.09, aCn = 0.06, aCp = 0.09, aD = 0.01, aV = 0.0, aCv = 0.0,
+  kR = 0.33, kS = 0.15, kCn = 0.15, kCp = 0.15, kD = 0.068, kV = 0.15, kCv = 0.15,
+  alpha = 0.5, theta = 0.033, phi = 0.06, p = 0.8, eps = 0.10,
+  betaC = 0.000001, betaD = 0.000001, f = 0.6, v = 0
+)
+parameters_B <- c(
+  aR = 0.75, aS = 0.09, aCn = 0.06, aCp = 0.09, aD = 0.01, aV = 0.0, aCv = 0.0,
+  kR = 0.33, kS = 0.15, kCn = 0.15, kCp = 0.15, kD = 0.068, kV = 0.15, kCv = 0.15,
+  alpha = 0.5, theta = 0.033, phi = 0.06, p = 0.8, eps = 0.10,
+  betaC = 0.000001, betaD = 0.000001, f = 0.6, v = 0.3
+)
+df <- list(A = parameters_A, B = parameters_B) %>% 
+      map(~ode(y = state, time = t, func = cdiff_vacc, parms = .) %>%
+            unclass() %>% 
+            as_tibble() %>% 
+            mutate(
+              sumC = Cn + Cp + Cv,
+              sumV = V + Cv
+            ) %>% 
+            rename(days = time) %>% 
+            gather(state, num, -days) %>% 
+            mutate(state = factor(state, levels = c("R", "S", "Cn", "Cp", "sumC", "D", "V", "Cv", "sumV")))
+            ) %>%
+      bind_rows(.id = "parameter_group")
+df %>% 
+  filter(!state %in% c("Cp","V","Cv","deltaN")) %>% 
+  ggplot(aes(days, num, col = parameter_group)) + 
+    geom_line() +
+    facet_wrap(~state, nrow = 3, scales = "free_y")
+```
+
+An awkward but better way to do previous:
+
+```{r}
+get_new_par_val_vec <- function(x) {
+  for (i in seq_along(x)) {
+    names(x)[i] <- as.character(x[i])
+  }
+  x
+}
+get_new_param_vec <- function(x, y, p) {
+  y[p] <- as.numeric(x)
+  y
+}
+parameters <- c(
+  aR = 0.75, aS = 0.09, aCn = 0.06, aCp = 0.09, aD = 0.01, aV = 0.0, aCv = 0.0,
+  kR = 0.33, kS = 0.15, kCn = 0.15, kCp = 0.15, kD = 0.068, kV = 0.15, kCv = 0.15,
+  alpha = 0.5, theta = 0.033, phi = 0.06, p = 0.8, eps = 0.10,
+  betaC = 0.000001, betaD = 0.000001, f = 0.6, v = 0
+)
+
+vary_par <- "v"
+par_vals <- c(0.0, 0.3, 0.6)
+par_vals <- get_new_par_val_vec(par_vals)
+par_vals %>% 
+  map(get_new_param_vec, parameters, vary_par) %>% 
+  map(~ode(y = state, time = t, func = cdiff_vacc, parms = .) %>%
+        unclass() %>% 
+        as_tibble() %>% 
+        mutate(
+          sumC = Cn + Cp + Cv,
+          sumV = V + Cv
+        ) %>% 
+        rename(days = time) %>% 
+        gather(state, num, -days) %>% 
+        mutate(state = factor(state, levels = c("R", "S", "Cn", "Cp", "sumC", "D", "V", "Cv", "sumV")))
+        ) %>%
+  bind_rows(.id = "par_vals") %>% 
+  mutate(par_vals = as.factor(par_vals)) %>% 
+  filter(!state %in% c("Cp","V","Cv","deltaN")) %>% 
+  ggplot(aes(days, num, col = par_vals)) + 
+    geom_line() +
+    facet_wrap(~state, nrow = 3, scales = "free_y") +
+    scale_color_discrete(name=vary_par)
+
+```
+
+Letting $v=v(t)$ be a control, we formulate an optimal control problem that seeks to minimize both cost and disease impact. 
