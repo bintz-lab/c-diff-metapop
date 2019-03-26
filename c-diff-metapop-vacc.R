@@ -108,7 +108,7 @@ state <- c(R1L = 0.63*N1, S1L = 0.18*N1, C1L = 0.063*N1, D1L = 0.027*N1,
            R2V0 = 0, S2V0 = 0, C2V0 = 0, D2V0 = 0,
            R2V = 0, S2V = 0, C2V = 0)
 
-t <- seq(0, 1100, length = 10000)
+t <- seq(0, 1100, length = 1000)
 
 cdiff_df <- ode(
   y = state, time = t, 
@@ -126,4 +126,71 @@ cdiff_df <- ode(
 p <- cdiff_df %>% 
   ggplot(aes(time, val, col = state)) + geom_line() 
 
-p + facet_wrap(vars(risk, population), scales = "free", nrow = 4, labeller = label_context)
+p + 
+  facet_wrap(vars(risk, population), scales = "free", nrow = 4) +
+  theme(strip.text = element_blank())
+
+p1L <- cdiff_df %>% 
+  filter(risk == "L", population == "catchment") %>% 
+  ggplot(aes(time, val)) + 
+    geom_line() +
+    facet_wrap(vars(state), scales = "free", nrow = 2) +
+    theme(axis.title = element_blank())
+
+p2L <- cdiff_df %>% 
+  filter(risk == "L", population == "hospitalized") %>% 
+  ggplot(aes(time, val)) + 
+  geom_line() +
+  facet_wrap(vars(state), scales = "free", nrow = 2) +
+  theme(axis.title = element_blank())
+
+p1H <- cdiff_df %>% 
+  filter(risk == "H", population == "catchment") %>% 
+  ggplot(aes(time, val)) + 
+  geom_line() +
+  facet_wrap(vars(state), scales = "free", nrow = 2) +
+  theme(axis.title = element_blank())
+
+p2H <- cdiff_df %>% 
+  filter(risk == "H", population == "hospitalized") %>% 
+  ggplot(aes(time, val)) + 
+  geom_line() +
+  facet_wrap(vars(state), scales = "free", nrow = 2) +
+  theme(axis.title = element_blank())
+
+p1V0 <- cdiff_df %>% 
+  filter(risk == "V0", population == "catchment") %>% 
+  ggplot(aes(time, val)) + 
+  geom_line() +
+  facet_wrap(vars(state), scales = "free", nrow = 2) +
+  theme(axis.title = element_blank())
+
+p2V0 <- cdiff_df %>% 
+  filter(risk == "V0", population == "hospitalized") %>% 
+  ggplot(aes(time, val)) + 
+  geom_line() +
+  facet_wrap(vars(state), scales = "free", nrow = 2) +
+  theme(axis.title = element_blank())
+
+p1V <- cdiff_df %>% 
+  filter(risk == "V", population == "catchment") %>% 
+  ggplot(aes(time, val)) + 
+  geom_line() +
+  facet_wrap(vars(state), scales = "free", nrow = 2) +
+  theme(axis.title = element_blank())
+
+p2V <- cdiff_df %>% 
+  filter(risk == "V", population == "hospitalized") %>% 
+  ggplot(aes(time, val)) + 
+  geom_line() +
+  facet_wrap(vars(state), scales = "free", nrow = 2) +
+  theme(axis.title = element_blank())
+
+#========================================================
+# arrange the previous plots into a grid
+# the function plot_grid is very slow for some reason...do not use in shiny
+library(cowplot)
+theme_set(theme_grey())
+plot_grid(p1L, p2L, p1H, p2H, p1V0, p2V0, p1V, p2V, nrow = 4)
+#========================================================
+
