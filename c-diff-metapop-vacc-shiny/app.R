@@ -195,102 +195,63 @@ cdiff_df <- ode(
            population = fct_recode(population, catchment = "1", hospitalized = "2"),
            risk = factor(risk, levels = c("L", "H", "V0", "V")))
 
-p1L <- cdiff_df %>% 
-    filter(risk == "L", population == "catchment") %>% 
-    ggplot(aes(time, val)) + 
-    geom_line() +
-    facet_wrap(vars(state), scales = "free", nrow = 2) +
-    theme(axis.title = element_blank(), plot.title = element_text(hjust = 0.5)) +
-    labs(title = "Community: Low Risk")
+patchwise_plot <- function(df) {
+    df %>% 
+        ggplot(aes(time, val)) + 
+        geom_line() +
+        facet_wrap(vars(state), scales = "free", nrow = 2) +
+        theme(axis.title = element_blank(), plot.title = element_text(hjust = 0.5))
+}
 
-p2L <- cdiff_df %>% 
-    filter(risk == "L", population == "hospitalized") %>% 
-    ggplot(aes(time, val)) + 
-    geom_line() +
-    facet_wrap(vars(state), scales = "free", nrow = 2) +
-    theme(axis.title = element_blank(), plot.title = element_text(hjust = 0.5)) +
-    labs(title = "Hospital: Low Risk")
-
-p1H <- cdiff_df %>% 
-    filter(risk == "H", population == "catchment") %>% 
-    ggplot(aes(time, val)) + 
-    geom_line() +
-    facet_wrap(vars(state), scales = "free", nrow = 2) +
-    theme(axis.title = element_blank(), plot.title = element_text(hjust = 0.5)) +
-    labs(title = "Community: High Risk")
-
-p2H <- cdiff_df %>% 
-    filter(risk == "H", population == "hospitalized") %>% 
-    ggplot(aes(time, val)) + 
-    geom_line() +
-    facet_wrap(vars(state), scales = "free", nrow = 2) +
-    theme(axis.title = element_blank(), plot.title = element_text(hjust = 0.5)) +
-    labs(title = "Hospital: High Risk")
-
-p1V0 <- cdiff_df %>% 
-    filter(risk == "V0", population == "catchment") %>% 
-    ggplot(aes(time, val)) + 
-    geom_line() +
-    facet_wrap(vars(state), scales = "free", nrow = 2) +
-    theme(axis.title = element_blank(), plot.title = element_text(hjust = 0.5)) +
-    labs(title = "Community: Vaccination Initialized")
-
-p2V0 <- cdiff_df %>% 
-    filter(risk == "V0", population == "hospitalized") %>% 
-    ggplot(aes(time, val)) + 
-    geom_line() +
-    facet_wrap(vars(state), scales = "free", nrow = 2) +
-    theme(axis.title = element_blank(), plot.title = element_text(hjust = 0.5)) +
-    labs(title = "Hospital: Vaccination Initialized")
-
-p1V <- cdiff_df %>% 
-    filter(risk == "V", population == "catchment") %>% 
-    ggplot(aes(time, val)) + 
-    geom_line() +
-    facet_wrap(vars(state), scales = "free", nrow = 2) +
-    theme(axis.title = element_blank(), plot.title = element_text(hjust = 0.5)) +
-    labs(title = "Community: Vaccinated")
-
-p2V <- cdiff_df %>% 
-    filter(risk == "V", population == "hospitalized") %>% 
-    ggplot(aes(time, val)) + 
-    geom_line() +
-    facet_wrap(vars(state), scales = "free", nrow = 2) +
-    theme(axis.title = element_blank(), plot.title = element_text(hjust = 0.5)) +
-    labs(title = "Hospital: Vaccinated")
+plotlist <- cdiff_df %>% 
+    group_by(population, risk) %>% 
+    nest() %>% 
+    mutate(
+        patchplot = map(data, patchwise_plot) %>% 
+            set_names(paste0(population, risk))
+    ) %>% select(patchplot)
 
 # Define server logic
 server <- function(input, output, session) {
+    #TODO: these need to be redone using map and the titles should somehow be static
     output$p1L <- renderPlot({
-        p1L
+        plotlist$patchplot$catchmentL +
+            labs(title = "Community: Low Risk")
     })
     
     output$p2L <- renderPlot({
-        p2L
+        plotlist$patchplot$hospitalizedL +
+            labs(title = "Hospital: Low Risk")
     })
     
     output$p1H <- renderPlot({
-        p1H
+        plotlist$patchplot$catchmentH +
+            labs(title = "Community: High Risk")
     })
     
     output$p2H <- renderPlot({
-        p2H
+        plotlist$patchplot$hospitalizedH +
+            labs(title = "Hospital: High Risk")
     })
     
     output$p1V0 <- renderPlot({
-        p1V0
+        plotlist$patchplot$catchmentV0 +
+            labs(title = "Community: Vaccination Initialized")
     })
     
     output$p2V0 <- renderPlot({
-        p2V0
+        plotlist$patchplot$hospitalizedV0 +
+            labs(title = "Hospital: Vaccination Initialized")
     })
     
     output$p1V <- renderPlot({
-        p1V
+        plotlist$patchplot$catchmentV +
+            labs(title = "Community: Vaccinated")
     })
     
     output$p2V <- renderPlot({
-        p2V
+        plotlist$patchplot$hospitalizedV +
+            labs(title = "Hospital: Vaccinated")
     })
 }
 
