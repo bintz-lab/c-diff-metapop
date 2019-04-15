@@ -144,28 +144,28 @@ b <- d1*N1 + d2*N2
 
 parameters <- c(N1 = N1, N2 = N2, d1 = d1, d2 = d2, b = b,
                 
-                alpha1L = 0.5/50, theta1L = 0.0033, xi1L = 0.0165, phi1L = 0.2, 
+                alpha1L = 0.5/50, theta1L = 0.033, xi1L = 0.0165, phi1L = 0.2, 
                 p1L = 0.8, eps1L = 0.1, betaC1L = 0.007/50, betaD1L = 0.007/50,
                 
-                alpha1H = 0.5/50, theta1H = 0.0033, xi1H = 0.0165, phi1H = 0.2, 
+                alpha1H = 0.5/50, theta1H = 0.033, xi1H = 0.0165, phi1H = 0.2, 
                 p1H = 0.8, eps1H = 0.1, betaC1H = 0.007/50, betaD1H = 0.007/50,
                 
-                alpha1V0 = 0.5/50, theta1V0 = 0.0033, xi1V0 = 0.0165, phi1V0 = 0.2, 
+                alpha1V0 = 0.5/50, theta1V0 = 0.033, xi1V0 = 0.0165, phi1V0 = 0.2, 
                 p1V0 = 0.8, eps1V0 = 0.1, betaC1V0 = 0.007/50, betaD1V0 = 0.007/50,
                 
-                alpha1V = 0.5/50, theta1V = 0.0033, xi1V = 0.0165, 
+                alpha1V = 0.5/50, theta1V = 0.033, xi1V = 0.0165, 
                 betaC1V = 0.007/50, betaD1V = 0.007/50,
                 
-                alpha2L = 0.5, theta2L = 0.0033, xi2L = 0.0165, phi2L = 0.2, 
+                alpha2L = 0.5, theta2L = 0.033, xi2L = 0.0165, phi2L = 0.2, 
                 p2L = 0.8, eps2L = 0.1, betaC2L = 0.007, betaD2L = 0.007,
                 
-                alpha2H = 0.5, theta2H = 0.0033, xi2H = 0.0165, phi2H = 0.2, 
+                alpha2H = 0.5, theta2H = 0.033, xi2H = 0.0165, phi2H = 0.2, 
                 p2H = 0.8, eps2H = 0.1, betaC2H = 0.007, betaD2H = 0.007,
                 
-                alpha2V0 = 0.5, theta2V0 = 0.0033, xi2V0 = 0.0165, phi2V0 = 0.2, 
+                alpha2V0 = 0.5, theta2V0 = 0.033, xi2V0 = 0.0165, phi2V0 = 0.2, 
                 p2V0 = 0.8, eps2V0 = 0.1, betaC2V0 = 0.007, betaD2V0 = 0.007,
                 
-                alpha2V = 0.5, theta2V = 0.0033, xi2V = 0.0165, 
+                alpha2V = 0.5, theta2V = 0.033, xi2V = 0.0165, 
                 betaC2V = 0.007, betaD2V = 0.007,
                 
                 etaRL = 1, qRL = 0.25, etaSL = 1, qSL = 0.25, etaCL = 1, qCL = 0.25,
