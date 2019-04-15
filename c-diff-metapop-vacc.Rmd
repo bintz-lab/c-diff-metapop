@@ -131,7 +131,35 @@ and
 
 $$R_i=R_i^L+R_i^H+R_i^{V_0}+R_i^V, \text{etc.}$$
 
-```{r, echo = FALSE}
+|Parameter|Description|Baseline Value|
+|:---|:---|:---|
+|$N_1$|Community population size|100000|
+|$N_2$|Hospital population size|10000|
+|$b$|Community births per day|$d_1N_1 + d_2N_2$|
+|$d_1$|Community death rate|1/(78.5*365)|
+|$d_2$|Hospital death rate|0.0068|
+|$\alpha_1^*$|Community antibiotic prescription rates|0.5/50|
+|$\alpha_2^*$|Hospital antibiotic prescription rates|0.5|
+|$\theta_1^*$|Community resistance restoration rates (susceptibles)|0.033|
+|$\theta_2^*$|Hospital resistance restoration rates (susceptibles)|0.033|
+|$\xi_1^*$|Community resistance restoration rates (colonized)|0.033/2|
+|$\xi_2^*$|Hospital resistance restoration rates (colonized)|0.033/2|
+|$\beta_{C,1}^*,\beta_{D,1}^*$|Community transmission coefficients for carriers and diseased patients per individual per day|0.007/50, 0.007/50|
+|$\beta_{C,2}^*,\beta_{D,2}^*$|Hospital transmission coefficients for carriers and diseased patients per individual per day|0.007, 0.007|
+|$\phi_1^*$|Community disease rates|0.2|
+|$\phi_2^*$|Hospital disease rates|0.2|
+|$p_1^*$|Community probability of successful treatment|0.8|
+|$p_2^*$|Hospital probability of successful treatment|0.8|
+|$\varepsilon_1^*$|Community treatment rates|0.1|
+|$\varepsilon_2^*$|Hospital treatment rates|0.1|
+|$\eta_*^*$|Vaccination levels|0.25|
+|$q_*^*$|Probabilities that vaccination will be successful|1.0|
+|$\nu_*^e$|Effective vaccination rates|2/365|
+|$r_*$|Low to high risk transition probabilities |0.25|
+|$\delta$|Discharge rate|0.135|
+
+
+```{r, echo = FALSE, include = FALSE}
 library(tidyverse)
 library(deSolve)
 
@@ -206,28 +234,28 @@ b <- d1*N1 + d2*N2
 
 parameters <- c(N1 = N1, N2 = N2, d1 = d1, d2 = d2, b = b,
                 
-                alpha1L = 0.5/50, theta1L = 0.0033, xi1L = 0.0165, phi1L = 0.2, 
+                alpha1L = 0.5/50, theta1L = 0.033, xi1L = 0.0165, phi1L = 0.2, 
                 p1L = 0.8, eps1L = 0.1, betaC1L = 0.007/50, betaD1L = 0.007/50,
                 
-                alpha1H = 0.5/50, theta1H = 0.0033, xi1H = 0.0165, phi1H = 0.2, 
+                alpha1H = 0.5/50, theta1H = 0.033, xi1H = 0.0165, phi1H = 0.2, 
                 p1H = 0.8, eps1H = 0.1, betaC1H = 0.007/50, betaD1H = 0.007/50,
                 
-                alpha1V0 = 0.5/50, theta1V0 = 0.0033, xi1V0 = 0.0165, phi1V0 = 0.2, 
+                alpha1V0 = 0.5/50, theta1V0 = 0.033, xi1V0 = 0.0165, phi1V0 = 0.2, 
                 p1V0 = 0.8, eps1V0 = 0.1, betaC1V0 = 0.007/50, betaD1V0 = 0.007/50,
                 
-                alpha1V = 0.5/50, theta1V = 0.0033, xi1V = 0.0165, 
+                alpha1V = 0.5/50, theta1V = 0.033, xi1V = 0.0165, 
                 betaC1V = 0.007/50, betaD1V = 0.007/50,
                 
-                alpha2L = 0.5, theta2L = 0.0033, xi2L = 0.0165, phi2L = 0.2, 
+                alpha2L = 0.5, theta2L = 0.033, xi2L = 0.0165, phi2L = 0.2, 
                 p2L = 0.8, eps2L = 0.1, betaC2L = 0.007, betaD2L = 0.007,
                 
-                alpha2H = 0.5, theta2H = 0.0033, xi2H = 0.0165, phi2H = 0.2, 
+                alpha2H = 0.5, theta2H = 0.033, xi2H = 0.0165, phi2H = 0.2, 
                 p2H = 0.8, eps2H = 0.1, betaC2H = 0.007, betaD2H = 0.007,
                 
-                alpha2V0 = 0.5, theta2V0 = 0.0033, xi2V0 = 0.0165, phi2V0 = 0.2, 
+                alpha2V0 = 0.5, theta2V0 = 0.033, xi2V0 = 0.0165, phi2V0 = 0.2, 
                 p2V0 = 0.8, eps2V0 = 0.1, betaC2V0 = 0.007, betaD2V0 = 0.007,
                 
-                alpha2V = 0.5, theta2V = 0.0033, xi2V = 0.0165, 
+                alpha2V = 0.5, theta2V = 0.033, xi2V = 0.0165, 
                 betaC2V = 0.007, betaD2V = 0.007,
                 
                 etaRL = 1, qRL = 0.25, etaSL = 1, qSL = 0.25, etaCL = 1, qCL = 0.25,
