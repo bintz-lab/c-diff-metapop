@@ -134,7 +134,7 @@ $$R_i=R_i^L+R_i^H+R_i^{V_0}+R_i^V, \text{etc.}$$
 |Parameter|Description|Baseline Value|
 |:---|:---|:---|
 |$N_1$|Community population size|100000|
-|$N_2$|Hospital population size|10000|
+|$N_2$|Hospital population size|2000|
 |$b$|Community births per day|$d_1N_1 + d_2N_2$|
 |$d_1$|Community death rate|1/(78.5*365)|
 |$d_2$|Hospital death rate|0.0068|

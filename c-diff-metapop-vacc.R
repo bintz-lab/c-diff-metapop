@@ -2,7 +2,7 @@ library(tidyverse)
 library(deSolve)
 
 cdiff_metapop_vacc <- function(t, state, parameters) {
-  with(as.list(c(state, parameters)),
+  with(as.list(c(state, parameters, b)),
        {
          sumC1 <- C1L+C1H+C1V0+C1V
          sumD1 <- D1L+D1H+D1V0
@@ -62,15 +62,7 @@ cdiff_metapop_vacc <- function(t, state, parameters) {
        })
 }
 
-N1 <- 100000
-N2 <- 10000
-d1 <- 1/(78.5*365)
-d2 <- .0068
-b <- d1*N1 + d2*N2
-
-
-
-parameters <- c(N1 = N1, N2 = N2, d1 = d1, d2 = d2, b = b,
+parameters <- c(N1 = 100000, N2 = 2000, d1 = 1/(78.5*365), d2 = 0.0068,
                 
                 alpha1L = 0.5/50, theta1L = 0.033, xi1L = 0.0165, phi1L = 0.2, 
                 p1L = 0.8, eps1L = 0.1, betaC1L = 0.007/50, betaD1L = 0.007/50,
@@ -101,6 +93,9 @@ parameters <- c(N1 = N1, N2 = N2, d1 = d1, d2 = d2, b = b,
                 rR = 0.25, rS = 0.25, rC = 0.25, rD = 0.25,
                 nuR = 2/365, nuS = 2/365, nuC = 2/365,
                 delta = 0.135)
+
+b <- as.numeric(parameters["d1"]*parameters["N1"] + parameters["d2"]*parameters["N2"])
+parameters <- c(parameters, b = b)
 
 state <- c(R1L = 0.63*N1, S1L = 0.18*N1, C1L = 0.063*N1, D1L = 0.027*N1,
            R1H = 0.07*N1, S1H = 0.02*N1, C1H = 0.007*N1, D1H = 0.003*N1,
