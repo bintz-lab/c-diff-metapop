@@ -11,12 +11,26 @@ library(deSolve)
 
 # Define UI for application
 ui <- fluidPage(
+    withMathJax(),
     sidebarLayout(
         sidebarPanel(
-            sliderInput(
-                inputId = "N1",
-                label = "",
-                min = 0, max = 0.6, value = 0, step = 0.1
+            fluidRow(
+                column(6,
+                    sliderInput(
+                        inputId = "N1",
+                        label = helpText("$$N_1$$"),
+                        min = 50000, max = 150000, value = 100000, step = 1000,
+                        ticks = FALSE
+                    )
+                ),
+                column(6,
+                    sliderInput(
+                        inputId = "N2",
+                        label = helpText("$$N_2$$"),
+                        min = 500, max = 3500, value = 2000, step = 100,
+                        ticks = FALSE
+                    )
+                )
             )
         ),
         mainPanel(
@@ -222,6 +236,11 @@ plotlist <- cdiff_df %>%
 
 # Define server logic
 server <- function(input, output, session) {
+    new_cdiff_df <- eventReactive(input$update, {
+        
+    }
+        
+    )
     #TODO: these need to be redone using map and the titles should somehow be static
     output$p1L <- renderPlot({
         plotlist$patchplot$catchmentL +
