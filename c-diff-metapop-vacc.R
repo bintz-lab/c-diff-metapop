@@ -94,7 +94,9 @@ parameters <- c(N1 = 100000, N2 = 2000, d1 = 1/(78.5*365), d2 = 0.0068,
                 nuR = 2/365, nuS = 2/365, nuC = 2/365,
                 delta = 0.135)
 
-b <- as.numeric(parameters["d1"]*parameters["N1"] + parameters["d2"]*parameters["N2"])
+N1 <- as.numeric(parameters["N1"])
+N2 <- as.numeric(parameters["N2"])
+b <- as.numeric(parameters["d1"]*N1 + parameters["d2"]*N2)
 parameters <- c(parameters, b = b)
 
 state <- c(R1L = 0.63*N1, S1L = 0.18*N1, C1L = 0.063*N1, D1L = 0.027*N1,
