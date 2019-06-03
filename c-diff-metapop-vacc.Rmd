@@ -11,7 +11,7 @@ library(deSolve)
 ```
 
 ```{r, out.width='65%', fig.align='center', fig.cap='Movement Model Flow Diagram'}
-knitr::include_graphics('cdiff-metapop-flow.jpeg')
+knitr::include_graphics('cdiff-metapop-flow-2.png')
 ```
 
 $$
@@ -209,6 +209,66 @@ $$
     \end{array}
   \right]
 $$
+
+where
+
+$$
+  \mathbf{\Phi} =
+  \left[
+    \begin{array}
+      {ccc}
+       \phi_1^L & 0 & 0 & 0 \\
+       0 & \phi_2^L & 0 & 0 \\
+       0 & 0 & \phi_1^H & 0 \\
+       0 & 0 & 0 & \phi_2^H
+    \end{array}
+  \right],
+  \mathbf{T_C} =
+  \left[
+    \begin{array}
+      {ccc}
+      \tau_{C,1}^L & -\delta & -\rho_C & 0 \\
+      -(1-r_C)(\delta+d_2)\frac{N_2}{N_1} & \tau_{C,2}^L & 0 & 0 \\
+      0 & 0 & \tau_{C,1}^H & -\delta \\
+      -r_C(\delta+d_2)\frac{N_2}{N_1} & 0 & -(\delta+d_2)\frac{N_2}{N_1} & \tau_{C,2}^H
+    \end{array}
+  \right],
+$$
+
+and $\mathbf{T_D}$ is similar to $\mathbf{T_C}$. This gives the next generation matrix (NGM),
+
+$$
+  FV^{-1} =
+  \left[
+    \begin{array}
+      {cc}
+      \mathbf{B_C} & \mathbf{B_D}\\
+      \mathbf{0} & \mathbf{0}
+    \end{array}
+  \right]
+  \left[
+    \begin{array}
+      {cc}
+      \mathbf{T_C}^{-1} & \mathbf{0}\\
+      \mathbf{T_D}^{-1}\mathbf{\Phi}\mathbf{T_C}^{-1} & \mathbf{T_D}^{-1}
+    \end{array}
+  \right] =
+  \left[
+    \begin{array}
+      {cc}
+      (\mathbf{B_C}+\mathbf{B_D}\mathbf{T_D}^{-1}\mathbf{\Phi})\mathbf{T_C}^{-1} & \mathbf{B_D}\mathbf{T_D}^{-1}\\
+      \mathbf{0} & \mathbf{0}
+    \end{array}
+  \right].
+$$
+
+The basic reproduction number, $\mathscr{R}_0$, is the spectral radius of the NGM:
+
+$$
+  \mathscr{R}_0 = \rho(FV^{-1})=\rho((\mathbf{B_C}+\mathbf{B_D}\mathbf{T_D}^{-1}\mathbf{\Phi})\mathbf{T_C}^{-1}).
+$$
+
+If $\rho_C=\rho_D=0$, then it is straightforward to calculate $\mathbf{T_C}^{-1}$ and $\mathbf{T_D}^{-1}$ explicitly.
 
 |Parameter|Description|Baseline Value|
 |:---|:---|:---|
