@@ -1,6 +1,7 @@
 ---
-title: An epidemiological model for *C. difficile* transmission with vaccination
-output: html_document
+title: "An epidemiological model for *C. difficile* transmission with vaccination"
+output:
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -130,6 +131,84 @@ $$N_i=R_i+S_i+C_i+D_i, i=1,2$$
 and
 
 $$R_i=R_i^L+R_i^H+R_i^{V_0}+R_i^V, \text{etc.}$$
+
+##### Basic Reproduction Number
+
+We use the next generation matrix method to calculate $\mathscr{R}_0$, the basic reproduction number, for the model without vaccination. Ordering the disease states $C_1^L,C_2^L,C_1^H,C_2^H,D_1^L,D_2^L,D_1^H,D_2^H$, we have: 
+
+$$
+  \mathscr{F} = 
+  \left[
+    \begin{array}
+      {c}
+      \lambda_1^L S_1^L \\
+      \lambda_2^L S_2^L \\
+      \lambda_1^H S_1^H \\
+      \lambda_2^H S_2^H \\
+      0 \\
+      0 \\
+      0 \\
+      0
+    \end{array}
+  \right] \Rightarrow F =
+  \left[
+    \begin{array}
+      {cccccc}
+      \beta_{C,1}^L S_{0,1}^L & 0 & \beta_{C,1}^L S_{0,1}^L & 0 & \beta_{D,1}^L S_{0,1}^L & 0 & \beta_{D,1}^L S_{0,1}^L & 0 \\
+      0 & \beta_{C,2}^L S_{0,2}^L & 0 & \beta_{C,2}^L S_{0,2}^L & 0 & \beta_{D,2}^L S_{0,2}^L & 0 & \beta_{D,2}^L S_{0,2}^L \\
+      \beta_{C,1}^H S_{0,1}^H & 0 & \beta_{C,1}^H S_{0,1}^H & 0 & \beta_{D,1}^H S_{0,1}^H & 0 & \beta_{D,1}^H S_{0,1}^H & 0 \\
+      0 & \beta_{C,2}^H S_{0,2}^H & 0 & \beta_{C,2}^H S_{0,2}^H & 0 & \beta_{D,2}^H S_{0,2}^H & 0 & \beta_{D,2}^H S_{0,2}^H\\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0
+    \end{array}
+  \right] = 
+  \left[
+    \begin{array}
+      {cc}
+      \mathbf{B_C} & \mathbf{B_D}\\
+      \mathbf{0} & \mathbf{0}
+    \end{array}
+  \right]
+$$
+
+$$
+  \mathscr{V} = 
+  \left[
+    \begin{array}
+      {c}
+      (d_1+\xi_1^L+\phi_1^L+(\delta+d_2)\frac{N_2}{N_1})C_1^L - \delta C_2^L - \rho_C C_1^H \\
+      (d_2+\xi_2^L+\phi_2^L+\delta)C_2^L - (1-r_C)(\delta + d_2)\frac{N_2}{N_1}C_1^L \\
+      (d_1+\xi_1^H+\phi_1^H+(\delta+d_2)\frac{N_2}{N_1}+\rho_C)C_1^H - \delta C_2^H \\
+      (d_2+\xi_2^H+\phi_2^H+\delta)C_2^H - r_C(\delta + d_2)\frac{N_2}{N_1}C_1^L - (\delta + d_2)\frac{N_2}{N_1}C_1^H \\
+      (d_1+p_1^L\varepsilon_1^L+(\delta+d_2)\frac{N_2}{N_1})D_1^L - \phi_1^LC_1^L - \delta D_2^L - \rho_D D_1^H \\
+      (d_2+p_2^L\varepsilon_2^L+\delta)D_2^L - \phi_2^LC_2^L - (1-r_D)(\delta + d_2)\frac{N_2}{N_1}D_1^L \\
+      (d_1+p_1^H\varepsilon_1^H+(\delta+d_2)\frac{N_2}{N_1}+\rho_D)D_1^H - \phi_1^HC_1^H - \delta D_2^H \\
+      (d_2+p_2^H\varepsilon_2^H+\delta)D_2^H - \phi_2^HC_2^H - r_D(\delta + d_2)\frac{N_2}{N_1}D_1^L - (\delta + d_2)\frac{N_2}{N_1}D_1^H
+    \end{array}
+  \right] = 
+  \left[
+    \begin{array}
+      {c}
+      \tau_{C,1}^L C_1^L - \delta C_2^L - \rho_C C_1^H \\
+      \tau_{C,2}^L C_2^L - (1-r_C)(\delta+d_2)\frac{N_2}{N_1} C_1^L\\
+      \tau_{C,1}^H C_1^H - \delta C_2^H \\
+      \tau_{C,2}^H C_2^H-r_C(\delta+d_2)\frac{N_2}{N_1} C_1^L-(\delta+d_2)\frac{N_2}{N_1} C_1^H\\
+      \tau_{D,1}^L D_1^L - \phi_1^L C_1^L - \delta D_2^L - \rho_D D_1^H \\
+      \tau_{D,2}^L D_2^L - \phi_2^L C_2^L - (1-r_D)(\delta+d_2)\frac{N_2}{N_1} D_1^L\\
+      \tau_{D,1}^H D_1^H - \phi_1^H C_1^H - \delta D_2^H \\
+      \tau_{D,2}^H D_2^H-\phi_2^H C_2^H-r_D(\delta+d_2)\frac{N_2}{N_1} D_1^L-(\delta+d_2)\frac{N_2}{N_1} D_1^H
+    \end{array}
+  \right] \Rightarrow V =
+  \left[
+    \begin{array}
+      {cc}
+      \mathbf{T_C} & \mathbf{0}\\
+      \mathbf{-\Phi} & \mathbf{T_D}
+    \end{array}
+  \right]
+$$
 
 |Parameter|Description|Baseline Value|
 |:---|:---|:---|
