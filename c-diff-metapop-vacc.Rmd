@@ -268,9 +268,9 @@ $$
   \mathscr{R}_0 = \rho(FV^{-1})=\rho((\mathbf{B_C}+\mathbf{B_D}\mathbf{T_D}^{-1}\mathbf{\Phi})\mathbf{T_C}^{-1}).
 $$
 
-If $\rho_C=\rho_D=0$, then it is straightforward to calculate $\mathbf{T_C}^{-1}$ and $\mathbf{T_D}^{-1}$ explicitly.
+If $\rho_C=\rho_D=0$, then it is straightforward to calculate $\mathbf{T_C}^{-1}$ and $\mathbf{T_D}^{-1}$ explicitly. Actually, I have calculated $\mathbf{T_C}^{-1}$ and $\mathbf{T_D}^{-1}$ for the general case--see written notes dated June 6.
 
-|Parameter|Description|Baseline Value|
+|Parameter|Description|Baseline Value| 
 |:---|:---|:---|
 |$N_1$|Community population size|100000|
 |$N_2$|Hospital population size|2000|
@@ -297,7 +297,6 @@ If $\rho_C=\rho_D=0$, then it is straightforward to calculate $\mathbf{T_C}^{-1}
 |$\nu_*^e$|Effective vaccination rates|2/365|
 |$r_*$|Low to high risk transition probabilities |0.25|
 |$\delta$|Discharge rate|0.135|
-
 
 ```{r, echo = FALSE, include = FALSE}
 library(tidyverse)
