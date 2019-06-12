@@ -1,5 +1,5 @@
-R_0_cdiff_metapop <- function(state, parameters) {
-  with(as.list(c(state, parameters)),
+R_0_cdiff_metapop <- function(S0, parameters) {
+  with(as.list(c(S0, parameters)),
        {
          BC <- matrix(
            c(betaC1L*S1L, 0, betaC1L*S1L, 0,
@@ -44,49 +44,34 @@ R_0_cdiff_metapop <- function(state, parameters) {
          )
          
          PHI <- diag(c(phi1L, phi2L, phi1H, phi2H), 4, 4)
-         eigen((BC + BD%*%solve(TD)%*%PHI)%*%solve(TC), only.values = TRUE)
+         FVinv <- (BC + BD %*% solve(TD) %*% PHI) %*% solve(TC)
+         spectral_radius(FVinv)
        })
+}
+
+spectral_radius <- function(X) {
+  eigs <- eigen(X, only.values = TRUE)$values
+  eigs[which.max(abs(eigs))]
 }
 
 parameters <- c(N1 = 100000, N2 = 2000, d1 = 1/(78.5*365), d2 = 0.0068,
                 
-                alpha1L = 0.5/50, theta1L = 0.033, xi1L = 0.0165, phi1L = 0.2, 
+                xi1L = 0.0165, phi1L = 0.2, 
                 p1L = 0.8, eps1L = 0.1, betaC1L = 0.007/50, betaD1L = 0.007/50,
                 
-                alpha1H = 0.5/50, theta1H = 0.033, xi1H = 0.0165, phi1H = 0.2, 
+                xi1H = 0.0165, phi1H = 0.2, 
                 p1H = 0.8, eps1H = 0.1, betaC1H = 0.007/50, betaD1H = 0.007/50,
                 
-                alpha1V0 = 0.5/50, theta1V0 = 0.033, xi1V0 = 0.0165, phi1V0 = 0.2, 
-                p1V0 = 0.8, eps1V0 = 0.1, betaC1V0 = 0.007/50, betaD1V0 = 0.007/50,
-                
-                alpha1V = 0.5/50, theta1V = 0.033, xi1V = 0.0165, 
-                betaC1V = 0.007/50, betaD1V = 0.007/50,
-                
-                alpha2L = 0.5, theta2L = 0.033, xi2L = 0.0165, phi2L = 0.2, 
+                xi2L = 0.0165, phi2L = 0.2, 
                 p2L = 0.8, eps2L = 0.1, betaC2L = 0.007, betaD2L = 0.007,
                 
-                alpha2H = 0.5, theta2H = 0.033, xi2H = 0.0165, phi2H = 0.2, 
+                xi2H = 0.0165, phi2H = 0.2, 
                 p2H = 0.8, eps2H = 0.1, betaC2H = 0.007, betaD2H = 0.007,
                 
-                alpha2V0 = 0.5, theta2V0 = 0.033, xi2V0 = 0.0165, phi2V0 = 0.2, 
-                p2V0 = 0.8, eps2V0 = 0.1, betaC2V0 = 0.007, betaD2V0 = 0.007,
-                
-                alpha2V = 0.5, theta2V = 0.033, xi2V = 0.0165, 
-                betaC2V = 0.007, betaD2V = 0.007,
-                
-                etaRL = 1, qRL = 0.25, etaSL = 1, qSL = 0.25, etaCL = 1, qCL = 0.25,
-                etaRH = 1, qRH = 0.25, etaSH = 1, qSH = 0.25, etaCH = 1, qCH = 0.25,
                 rR = 0.25, rS = 0.25, rC = 0.25, rD = 0.25,
-                nuR = 2/365, nuS = 2/365, nuC = 2/365,
                 rhoR = 0.001, rhoS = 0.001, rhoC = 0.001, rhoD = 0.001,
                 delta = 0.135)
 
-state <- c(R1L = 0.63*N1, S1L = 0.18*N1, C1L = 0.063*N1, D1L = 0.027*N1,
-           R1H = 0.07*N1, S1H = 0.02*N1, C1H = 0.007*N1, D1H = 0.003*N1,
-           R1V0 = 0, S1V0 = 0, C1V0 = 0, D1V0 = 0,
-           R1V = 0, S1V = 0, C1V = 0,
-           
-           R2L = 0.63*N2, S2L = 0.18*N2, C2L = 0.063*N2, D2L = 0.027*N2,
-           R2H = 0.07*N2, S2H = 0.02*N2, C2H = 0.007*N2, D2H = 0.003*N2,
-           R2V0 = 0, S2V0 = 0, C2V0 = 0, D2V0 = 0,
-           R2V = 0, S2V = 0, C2V = 0)
+N1 <- as.numeric(parameters["N1"])
+N2 <- as.numeric(parameters["N2"])
+S0 <- c(S1L = 0.18*N1, S1H = 0.02*N1, S2L = 0.18*N2, S2H = 0.02*N2)
