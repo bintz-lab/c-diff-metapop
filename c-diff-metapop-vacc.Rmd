@@ -10,7 +10,7 @@ library(tidyverse)
 library(deSolve)
 ```
 
-```{r, out.width='65%', fig.align='center', fig.cap='Movement Model Flow Diagram'}
+```{r, out.width='70%', fig.align='center', fig.cap='Movement Model Flow Diagram'}
 knitr::include_graphics('cdiff-metapop-flow-2.png')
 ```
 
@@ -187,19 +187,6 @@ $$
       (d_1+p_1^H\varepsilon_1^H+(\delta+d_2)\frac{N_2}{N_1}+\rho_D)D_1^H - \phi_1^HC_1^H - \delta D_2^H \\
       (d_2+p_2^H\varepsilon_2^H+\delta)D_2^H - \phi_2^HC_2^H - r_D(\delta + d_2)\frac{N_2}{N_1}D_1^L - (\delta + d_2)\frac{N_2}{N_1}D_1^H
     \end{array}
-  \right] = 
-  \left[
-    \begin{array}
-      {c}
-      \tau_{C,1}^L C_1^L - \delta C_2^L - \rho_C C_1^H \\
-      \tau_{C,2}^L C_2^L - (1-r_C)(\delta+d_2)\frac{N_2}{N_1} C_1^L\\
-      \tau_{C,1}^H C_1^H - \delta C_2^H \\
-      \tau_{C,2}^H C_2^H-r_C(\delta+d_2)\frac{N_2}{N_1} C_1^L-(\delta+d_2)\frac{N_2}{N_1} C_1^H\\
-      \tau_{D,1}^L D_1^L - \phi_1^L C_1^L - \delta D_2^L - \rho_D D_1^H \\
-      \tau_{D,2}^L D_2^L - \phi_2^L C_2^L - (1-r_D)(\delta+d_2)\frac{N_2}{N_1} D_1^L\\
-      \tau_{D,1}^H D_1^H - \phi_1^H C_1^H - \delta D_2^H \\
-      \tau_{D,2}^H D_2^H-\phi_2^H C_2^H-r_D(\delta+d_2)\frac{N_2}{N_1} D_1^L-(\delta+d_2)\frac{N_2}{N_1} D_1^H
-    \end{array}
   \right] \Rightarrow V =
   \left[
     \begin{array}
@@ -223,14 +210,16 @@ $$
        0 & 0 & 0 & \phi_2^H
     \end{array}
   \right],
+$$
+$$
   \mathbf{T_C} =
   \left[
     \begin{array}
       {ccc}
-      \tau_{C,1}^L & -\delta & -\rho_C & 0 \\
-      -(1-r_C)(\delta+d_2)\frac{N_2}{N_1} & \tau_{C,2}^L & 0 & 0 \\
-      0 & 0 & \tau_{C,1}^H & -\delta \\
-      -r_C(\delta+d_2)\frac{N_2}{N_1} & 0 & -(\delta+d_2)\frac{N_2}{N_1} & \tau_{C,2}^H
+      d_1+\xi_1^L+\phi_1^L+(\delta+d_2)\frac{N_2}{N_1} & -\delta & -\rho_C & 0 \\
+      -(1-r_C)(\delta+d_2)\frac{N_2}{N_1} & d_2+\xi_2^L+\phi_2^L+\delta & 0 & 0 \\
+      0 & 0 & d_1+\xi_1^H+\phi_1^H+(\delta+d_2)\frac{N_2}{N_1}+\rho_C & -\delta \\
+      -r_C(\delta+d_2)\frac{N_2}{N_1} & 0 & -(\delta+d_2)\frac{N_2}{N_1} & d_2+\xi_2^H+\phi_2^H+\delta
     \end{array}
   \right],
 $$
@@ -283,8 +272,10 @@ If $\rho_C=\rho_D=0$, then it is straightforward to calculate $\mathbf{T_C}^{-1}
 |$\theta_2^*$|Hospital resistance restoration rates (susceptibles)|0.033|
 |$\xi_1^*$|Community resistance restoration rates (colonized)|0.033/2|
 |$\xi_2^*$|Hospital resistance restoration rates (colonized)|0.033/2|
-|$\beta_{C,1}^*,\beta_{D,1}^*$|Community transmission coefficients for carriers and diseased patients per individual per day|0.007/50, 0.007/50|
-|$\beta_{C,2}^*,\beta_{D,2}^*$|Hospital transmission coefficients for carriers and diseased patients per individual per day|0.007, 0.007|
+|$\beta_{C,1}^*$|Carrier transmission coefficient (community)|0.007/50|
+|$\beta_{D,1}^*$|Diseased transmission coefficient (community)|0.007/50|
+|$\beta_{C,2}^*$|Carrier transmission coefficient (hospital)|0.007|
+|$\beta_{D,2}^*$|Diseased transmission coefficient (hospital)|0.007|
 |$\phi_1^*$|Community disease rates|0.2|
 |$\phi_2^*$|Hospital disease rates|0.2|
 |$p_1^*$|Community probability of successful treatment|0.8|
@@ -297,6 +288,7 @@ If $\rho_C=\rho_D=0$, then it is straightforward to calculate $\mathbf{T_C}^{-1}
 |$\nu_*^e$|Effective vaccination rates|2/365|
 |$r_*$|Low to high risk transition probabilities |0.25|
 |$\delta$|Discharge rate|0.135|
+
 
 ```{r, echo = FALSE, include = FALSE}
 library(tidyverse)
