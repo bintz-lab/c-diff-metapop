@@ -75,3 +75,5 @@ parameters <- c(N1 = 100000, N2 = 2000, d1 = 1/(78.5*365), d2 = 0.0068,
 N1 <- as.numeric(parameters["N1"])
 N2 <- as.numeric(parameters["N2"])
 S0 <- c(S1L = 0.18*N1, S1H = 0.02*N1, S2L = 0.18*N2, S2H = 0.02*N2)
+
+R_0_cdiff_metapop(S0, parameters)
