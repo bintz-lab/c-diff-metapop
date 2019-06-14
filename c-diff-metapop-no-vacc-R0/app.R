@@ -10,29 +10,51 @@ library(shiny)
 # Define UI for application
 ui <- fluidPage(
   withMathJax(),
-  sidebarLayout(
-    sidebarPanel(
-      fluidRow(
-        column(6,
-               sliderInput(
-                 inputId = "N1",
-                 label = helpText("$$N_1$$"),
-                 min = 50000, max = 150000, value = 100000, step = 1000,
-                 ticks = FALSE
-               )
+  fluidRow(
+    column(
+      width = 4,
+      wellPanel(
+        selectInput(
+          inputId = "parameter_to_vary",
+          label = "Parameter to vary continuously?",
+          choices = c("v", "alpha", "beta"),
+          selected = "v"
+        )
+      ),
+      wellPanel(
+        selectInput(
+          inputId = "parameter_to_vary",
+          label = "Parameter to vary discretely?",
+          choices = c("v", "alpha", "beta"),
+          selected = "v"
+        )
+      ),
+      wellPanel(
+        sliderInput(
+          inputId = "param_val_1",
+          label = "",
+          min = 0, max = 0.6, value = 0, step = 0.1
         ),
-        column(6,
-               sliderInput(
-                 inputId = "N2",
-                 label = helpText("$$N_2$$"),
-                 min = 500, max = 3500, value = 2000, step = 100,
-                 ticks = FALSE
-               )
+        sliderInput(
+          inputId = "param_val_2",
+          label = "",
+          min = 0, max = 0.6, value = 0.3, step = 0.1
+        ),
+        sliderInput(
+          inputId = "param_val_3",
+          label = "",
+          min = 0, max = 0.6, value = 0.6, step = 0.1
         )
       )
     ),
-    mainPanel(
-      plotOutput("R0")
+    column(
+      width = 8,
+      h4(helpText("$$\\mathscr{R}_0\\,\\text{for } \\textit{C. difficile } \\text{metapopulation model without vaccination}$$")),
+      plotOutput("states"),
+      actionButton(
+        inputId = "update",
+        label = "Update"
+      )
     )
   )
 )
