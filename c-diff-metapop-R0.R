@@ -1,3 +1,5 @@
+library(tidyverse)
+
 # model without vaccination or risk
 R_0_cdiff_metapop_no_vacc_no_risk <- function(S0, parameters) {
   with(as.list(c(S0, parameters)),
@@ -80,7 +82,7 @@ S0 <- get_S0(parameters)
 R_0_cdiff_metapop_no_vacc_no_risk(S0, parameters)
 
 # model without vaccination
-R_0_cdiff_metapop_no_vacc <- function(S0, parameters) {
+get_R0 <- function(S0, parameters) {
   with(as.list(c(S0, parameters)),
        {
          BC <- matrix(
@@ -113,7 +115,7 @@ R_0_cdiff_metapop_no_vacc <- function(S0, parameters) {
            c(TC1L, -rhoC, -delta, 0,
              0, TC1H, 0, -delta,
              -(delta+d2)*N2/N1, 0, TC2L, 0,
-             0, -(delta+d2)*N2/N1, -rhoC, TC2H),
+             0, -(delta+d2)*N2/N1, -rC, TC2H),
            nrow = 4, byrow = TRUE
          )
          
@@ -121,7 +123,7 @@ R_0_cdiff_metapop_no_vacc <- function(S0, parameters) {
            c(TD1L, -rhoD, -delta, 0,
              0, TD1H, 0, -delta,
              -(delta+d2)*N2/N1, 0, TD2L, 0,
-             0, -(delta+d2)*N2/N1, -rhoD, TD2H),
+             0, -(delta+d2)*N2/N1, -rD, TD2H),
            nrow = 4, byrow = TRUE
          )
          
@@ -163,22 +165,42 @@ get_S0 <- function(parameters) {
 
 parameters <- c(N1 = 100000, N2 = 2000, d1 = 1/(78.5*365), d2 = 0.0068,
                 
-                alpha1L = 0.0095, theta1L = 0.033, xi1L = 0.0165, phi1L = 0.2, 
+                alpha1L = 0, theta1L = 0.033, xi1L = 0.0165, phi1L = 0.2, 
                 p1L = 0.8, eps1L = 0.1, betaC1L = 0.007/50, betaD1L = 0.007/50,
                 
-                alpha1H = 0.0105, theta1H = 0.033, xi1H = 0.0165, phi1H = 0.2, 
+                alpha1H = 0, theta1H = 0.033, xi1H = 0.0165, phi1H = 0.2, 
                 p1H = 0.8, eps1H = 0.1, betaC1H = 0.007/50, betaD1H = 0.007/50,
                 
-                alpha2L = 0.487, theta2L = 0.033, xi2L = 0.0165, phi2L = 0.2, 
+                alpha2L = 0.4, theta2L = 0.033, xi2L = 0.0165, phi2L = 0.2, 
                 p2L = 0.8, eps2L = 0.1, betaC2L = 0.007, betaD2L = 0.007,
                 
-                alpha2H = 0.507, theta2H = 0.033, xi2H = 0.0165, phi2H = 0.2, 
+                alpha2H = 0, theta2H = 0.033, xi2H = 0.0165, phi2H = 0.2, 
                 p2H = 0.8, eps2H = 0.1, betaC2H = 0.007, betaD2H = 0.007,
                 
                 rR = 0.25, rS = 0.25, rC = 0.25, rD = 0.25,
                 rhoR = 0.001, rhoS = 0.001, rhoC = 0.001, rhoD = 0.001,
                 delta = 0.135)
 
-S0 <- get_S0(parameters)
+get_new_param_vec <- function(x, y, p) {
+  y[p] <- as.numeric(x)
+  y
+}
 
-R_0_cdiff_metapop(S0, parameters)
+vary_par <- "alpha2L"
+
+x <- tibble(a2L = seq(0.01, 0.1, by = 0.01)) %>% 
+  mutate(
+    parms = a2L %>% map(get_new_param_vec, parameters, vary_par),
+    S0 = parms %>% map(get_S0),
+    R0 = map2(parms, S0, get_R0)
+  )
+
+A <- matrix(
+  c(unname(x$S0[[1]]), 
+    unname(x$S0[[2]]), 
+    unname(x$S0[[3]]), 
+    unname(x$S0[[4]])
+  ), byrow = TRUE, nrow = 4)
+
+b <- x$R0
+
